@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional payment processing tool for Foodpanda API - Process single or batch card payments securely and efficiently.">
+    <meta name="keywords" content="payment processing, foodpanda, card payments, batch processing">
+    <meta name="author" content="Foodpanda Payment Processor">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Foodpanda Payment Processor | Secure Payment Gateway</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💳</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --fp-pink: #D70F64;
+            --fp-pink-dark: #B80D54;
+            --fp-pink-light: #F8E8F0;
+            --fp-gradient: linear-gradient(135deg, #D70F64 0%, #E91E63 50%, #FF6B9D 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --shadow-xl: 0 12px 40px rgba(215, 15, 100, 0.15);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f5f5f5 50%, #f0f0f0 100%);
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Header */
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 18px 0;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: box-shadow 0.2s ease;
+            will-change: box-shadow;
+        }
+
+        .header:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--fp-pink);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+            color: var(--fp-pink-dark);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--fp-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(215, 15, 100, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            will-change: transform;
+        }
+
+        .logo:hover .logo-icon {
+            transform: scale3d(1.05, 1.05, 1);
+            box-shadow: 0 6px 20px rgba(215, 15, 100, 0.4);
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .main-container {
+                animation: fadeInUp 0.4s ease-out;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translate3d(0, 20px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                margin: 30px auto;
+            }
+        }
+
+        /* Form Section */
+        .form-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+            border-radius: 24px;
+            padding: 48px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(215, 15, 100, 0.1);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            position: relative;
+            will-change: transform, box-shadow;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--fp-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.5s ease;
+            will-change: transform;
+        }
+
+        .form-section:hover::before {
+            transform: scaleX(1);
+        }
+
+        .form-section:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .section-title {
+            font-size: 36px;
+            font-weight: 900;
+            background: var(--fp-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -0.8px;
+            position: relative;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 15px;
+            line-height: 1.6;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .form-group {
+                animation: fadeIn 0.3s ease-out backwards;
+            }
+            .form-group:nth-child(1) { animation-delay: 0.05s; }
+            .form-group:nth-child(2) { animation-delay: 0.1s; }
+            .form-group:nth-child(3) { animation-delay: 0.15s; }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate3d(-10px, 0, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.3px;
+            position: relative;
+            padding-left: 4px;
+        }
+
+        label::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: var(--fp-gradient);
+            transition: height 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .form-group:focus-within label::after {
+            height: 18px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+            font-family: inherit;
+            background: #fafafa;
+            position: relative;
+            will-change: transform, box-shadow;
+        }
+
+        input[type="text"]:hover,
+        textarea:hover {
+            border-color: #d0d0d0;
+            background: #fff;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--fp-pink);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(215, 15, 100, 0.08),
+                        0 4px 12px rgba(215, 15, 100, 0.1);
+            transform: translate3d(0, -1px, 0);
+        }
+
+        textarea {
+            min-height: 160px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .card-input-group {
+            display: grid;
+            grid-template-columns: 1fr 100px 120px;
+            gap: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .card-input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            background: var(--fp-gradient);
+            color: white;
+            border: none;
+            padding: 18px 36px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.8px;
+            box-shadow: 0 6px 20px rgba(215, 15, 100, 0.35);
+            will-change: transform, box-shadow;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            transform: translate3d(0, -2px, 0);
+            box-shadow: 0 8px 25px rgba(215, 15, 100, 0.4);
+        }
+
+        .btn:active {
+            transform: translate3d(0, 0, 0);
+            box-shadow: 0 2px 10px rgba(215, 15, 100, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            line-height: 1.5;
+            font-style: italic;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within .help-text {
+            color: var(--fp-pink-dark);
+        }
+
+        /* Card Counter */
+        .card-counter {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        .card-counter-text {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .card-counter-text.warning {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .card-counter-text.error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .card-counter-text.success {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer {
+            background: #fff;
+            border-top: 1px solid #e0e0e0;
+            padding: 32px 0;
+            margin-top: 80px;
+            text-align: center;
+            color: #666;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--fp-pink);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--fp-pink-dark);
+            text-decoration: underline;
+        }
+
+        /* Input Group with Counter */
+        .input-with-counter {
+            position: relative;
+        }
+
+        /* Enhanced Validation States */
+        input.error,
+        textarea.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        input.success,
+        textarea.success {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .validation-message {
+            font-size: 12px;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .validation-message.show {
+            display: block;
+        }
+
+        .validation-message.error {
+            color: #dc3545;
+        }
+
+        .validation-message.success {
+            color: #28a745;
+        }
+
+        /* Info Panel */
+        .info-panel {
+            background: #fff;
+            border-radius: 20px;
+            padding: 36px;
+            box-shadow: var(--shadow-lg);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            will-change: transform, box-shadow;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .info-panel {
+                animation: fadeInRight 0.4s ease-out 0.1s backwards;
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translate3d(20px, 0, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .info-panel:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translate3d(0, -2px, 0);
+        }
+
+        .info-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--fp-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 28px;
+            letter-spacing: -0.3px;
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        .info-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--fp-gradient);
+            border-radius: 2px;
+        }
+
+        .info-item {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .info-item:hover {
+            padding-left: 6px;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 15px;
+            color: #1a1a1a;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .info-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--fp-pink-light) 0%, #fff 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 22px;
+            box-shadow: 0 4px 12px rgba(215, 15, 100, 0.15);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            will-change: transform;
+        }
+
+        .info-item:hover .info-icon {
+            transform: scale3d(1.05, 1.05, 1);
+            box-shadow: 0 6px 20px rgba(215, 15, 100, 0.25);
+        }
+
+        /* Update icon-wrapper to match info-icon */
+        .info-item .icon-wrapper {
+            width: 48px;
+            height: 48px;
+            font-size: 22px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--fp-pink-light) 0%, #fff 100%);
+            box-shadow: 0 4px 12px rgba(215, 15, 100, 0.15);
+        }
+
+        .info-item:hover .icon-wrapper {
+            transform: scale3d(1.05, 1.05, 1);
+            box-shadow: 0 6px 20px rgba(215, 15, 100, 0.25);
+        }
+
+        /* Result */
+        .result {
+            margin-top: 28px;
+            padding: 24px;
+            border-radius: 12px;
+            background: #f5f5f5;
+            display: none;
+            border-left: 4px solid transparent;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .result.show {
+                animation: slideDown 0.3s ease-out;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -10px, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-left-color: #28a745;
+            color: #155724;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+        }
+
+        .result.error {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-left-color: #dc3545;
+            color: #721c24;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+        }
+
+        .result strong {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .result pre {
+            margin-top: 12px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+
+        /* Loading */
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 28px;
+            padding: 40px;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid rgba(215, 15, 100, 0.1);
+            border-top: 4px solid var(--fp-pink);
+            border-right: 4px solid var(--fp-pink);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 20px;
+            position: relative;
+            will-change: transform;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate3d(0, 0, 1, 0deg); }
+            100% { transform: rotate3d(0, 0, 1, 360deg); }
+        }
+
+        .loading-text {
+            color: #666;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .loading-text {
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: var(--fp-pink);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(215, 15, 100, 0.5);
+        }
+
+        /* Logs Container */
+        .logs-container {
+            margin-top: 28px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e0e0e0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .logs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-entry {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            border-left: 3px solid #ccc;
+            background: #fff;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .log-entry.info {
+            border-left-color: #2196F3;
+            background: #E3F2FD;
+        }
+
+        .log-entry.success {
+            border-left-color: #4CAF50;
+            background: #E8F5E9;
+        }
+
+        .log-entry.error {
+            border-left-color: #F44336;
+            background: #FFEBEE;
+        }
+
+        .log-entry.warning {
+            border-left-color: #FF9800;
+            background: #FFF3E0;
+        }
+
+        .log-timestamp {
+            color: #666;
+            font-size: 11px;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .log-message {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        /* Batch Results */
+        .batch-results {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .batch-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-item {
+            background: #fff;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .summary-value.success {
+            color: #4CAF50;
+        }
+
+        .summary-value.error {
+            color: #F44336;
+        }
+
+        .card-result-item {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ccc;
+            transition: all 0.2s ease;
+        }
+
+        .card-result-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-result-item.success {
+            border-left-color: #4CAF50;
+            background: #E8F5E9;
+        }
+
+        .card-result-item.error {
+            border-left-color: #F44336;
+            background: #FFEBEE;
+        }
+
+        .card-result-item.warning {
+            border-left-color: #FF9800;
+            background: #FFF3E0;
+        }
+
+        .card-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .card-result-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .card-result-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .card-result-status.success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .card-result-status.error {
+            background: #F44336;
+            color: white;
+        }
+
+        .card-result-status.warning {
+            background: #FF9800;
+            color: white;
+        }
+
+        .card-result-message {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            margin-bottom: 32px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tab {
+            padding: 16px 32px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            outline: none;
+        }
+
+        .tab:hover {
+            color: var(--fp-pink);
+            background: rgba(215, 15, 100, 0.05);
+        }
+
+        .tab.active {
+            color: var(--fp-pink);
+            border-bottom-color: var(--fp-pink);
+            background: rgba(215, 15, 100, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .tab-content[hidden] {
+            display: none !important;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle-wrapper {
+            position: relative;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+            z-index: 10;
+        }
+
+        .password-toggle-btn:hover {
+            color: var(--fp-pink);
+        }
+
+        .password-toggle-wrapper input[type="password"],
+        .password-toggle-wrapper input[type="text"] {
+            padding-right: 45px;
+        }
+
+        /* Section Divider */
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--fp-pink), transparent);
+            margin: 48px 0;
+            position: relative;
+        }
+
+        .section-divider::before {
+            content: '✨';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #f8f9fa;
+            padding: 0 16px;
+            font-size: 20px;
+        }
+
+        /* Enhanced Form Section */
+        .form-section {
+            background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+            border: 1px solid rgba(215, 15, 100, 0.1);
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--fp-pink-light);
+            color: var(--fp-pink);
+            margin-left: 8px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--fp-pink);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+            background: var(--fp-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Icon Enhancements */
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+            background: var(--fp-gradient);
+            box-shadow: 0 4px 15px rgba(215, 15, 100, 0.25);
+        }
+
+        /* Floating Action Elements */
+        .floating-label {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: #fff;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--fp-pink);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-top: 8px;
+        }
+
+        /* Enhanced Button */
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Card Preview */
+        .card-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .card-preview-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-number-display {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Enhanced Info Panel */
+        .info-panel {
+            background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--fp-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fp-pink-dark);
+        }
+
+        /* Smooth Focus */
+        input:focus, textarea:focus {
+            animation: focusPulse 0.3s ease-out;
+        }
+
+        @keyframes focusPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: var(--shadow-xl);
+            text-align: center;
+            min-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="logo">
+                <div class="logo-icon">fp</div>
+                <span>foodpanda</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <div class="form-section">
+            <h1 class="section-title">Payment Processing <span class="badge">PRO</span></h1>
+            <p class="section-subtitle">Process card payments through the Foodpanda API</p>
+
+            <!-- Tabs -->
+            <div class="tabs-container" role="tablist" aria-label="Payment processing options">
+                <div class="tabs">
+                    <button class="tab active" data-tab="single" role="tab" aria-selected="true" aria-controls="singleTab" id="singleTabBtn">💳 Single Card</button>
+                    <button class="tab" data-tab="batch" role="tab" aria-selected="false" aria-controls="batchTab" id="batchTabBtn">📦 Batch Processing</button>
+                </div>
+            </div>
+
+            <!-- Single Card Tab -->
+            <div class="tab-content active" id="singleTab" role="tabpanel" aria-labelledby="singleTabBtn">
+            <form id="paymentForm">
+                <div class="form-group password-toggle">
+                    <label for="bearer">Bearer Token <span aria-label="required">*</span></label>
+                    <div class="password-toggle-wrapper">
+                        <input type="password" id="bearer" name="bearer" placeholder="Enter your Bearer token" required aria-describedby="bearerHelp" autocomplete="off">
+                        <button type="button" class="password-toggle-btn" id="toggleBearer" aria-label="Toggle password visibility" tabindex="-1">
+                            <span id="toggleBearerIcon">👁️</span>
+                        </button>
+                    </div>
+                    <div class="help-text" id="bearerHelp">Your Foodpanda authentication bearer token</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardNumber">Card Details <span aria-label="required">*</span></label>
+                    <div class="card-input-group">
+                        <input type="text" id="cardNumber" name="cardNumber" placeholder="Card Number" maxlength="16" required aria-label="Card Number" aria-describedby="cardHelp" inputmode="numeric" pattern="[0-9]{16}">
+                        <input type="text" id="month" name="month" placeholder="MM" maxlength="2" required aria-label="Expiry Month" inputmode="numeric" pattern="[0-9]{2}">
+                        <input type="text" id="year" name="year" placeholder="YYYY" maxlength="4" required aria-label="Expiry Year" inputmode="numeric" pattern="[0-9]{4}">
+                    </div>
+                    <div class="help-text" id="cardHelp">Format: Card Number | Month | Year (e.g., 5424821357096169|04|2029)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="postfields">Postfields JSON <span aria-label="required">*</span></label>
+                    <textarea id="postfields" name="postfields" placeholder='{"expected_total_amount": 100, "vendor": {"code": "..."}, ...}' required aria-describedby="postfieldsHelp" spellcheck="false"></textarea>
+                    <div class="help-text" id="postfieldsHelp">The complete postfields JSON object required for checkout</div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn" aria-label="Process payment">
+                    <span>🚀 Process Payment</span>
+                </button>
+            </form>
+            </div>
+
+            <!-- Batch Processing Tab -->
+            <div class="tab-content" id="batchTab" role="tabpanel" aria-labelledby="batchTabBtn" hidden>
+                <form id="batchForm">
+                    <div class="form-group">
+                        <label for="batchCards">Card List (one per line) <span aria-label="required">*</span></label>
+                        <div class="input-with-counter">
+                            <textarea id="batchCards" name="batchCards" placeholder="5424821357096169|04|2029&#10;5424821357096170|05|2030&#10;5424821357096171|06|2031" style="min-height: 200px; font-family: 'Courier New', monospace;" required aria-describedby="batchCardsHelp batchCardsCounter"></textarea>
+                            <div class="card-counter" id="batchCardsCounter" aria-live="polite" aria-atomic="true">
+                                <span class="card-counter-text" id="cardCountText">0 / 13 cards</span>
+                            </div>
+                        </div>
+                        <div class="help-text" id="batchCardsHelp">Enter cards in format: cardNumber|MM|YYYY (one card per line). Maximum 13 cards allowed.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="concurrency">Concurrency</label>
+                        <input type="number" id="concurrency" name="concurrency" value="14" min="1" max="50" style="width: 150px;" aria-describedby="concurrencyHelp">
+                        <div class="help-text" id="concurrencyHelp">Number of cards to process simultaneously (default: 14, max: 50)</div>
+                    </div>
+
+                    <button type="submit" class="btn" id="batchSubmitBtn" aria-label="Process batch payment">
+                        <span>⚡ Process Batch</span>
+                    </button>
+                </form>
+            </div>
+
+                <div class="loading" id="batchLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <p class="loading-text">Processing batch...</p>
+                </div>
+
+                <div class="result" id="batchResult" style="display: none;"></div>
+
+                <div class="batch-results" id="batchResults" style="display: none; margin-top: 24px;">
+                    <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700; color: #1a1a1a;">Batch Results</h3>
+                    <div id="batchResultsList"></div>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">Processing payment...</p>
+            </div>
+
+            <div class="result" id="result"></div>
+            
+            <div class="logs-container" id="logsContainer" style="display: none;">
+                <h3 style="margin-bottom: 16px; font-size: 18px; font-weight: 700; color: #1a1a1a;">Processing Logs</h3>
+                <div class="logs-list" id="logsList"></div>
+            </div>
+        </div>
+
+        <div class="info-panel">
+            <h2 class="info-title">Payment Information</h2>
+            
+            <div class="info-item">
+                <div class="icon-wrapper">🔒</div>
+                <div class="info-label">Secure Payment</div>
+                <div class="info-value">Your payment is processed securely through Foodpanda's payment gateway</div>
+            </div>
+
+            <div class="info-item">
+                <div class="icon-wrapper">💳</div>
+                <div class="info-label">Supported Cards</div>
+                <div class="info-value">Visa and Mastercard</div>
+            </div>
+
+            <div class="info-item">
+                <div class="icon-wrapper">⚡</div>
+                <div class="info-label">Processing Time</div>
+                <div class="info-value">Usually takes 10-30 seconds</div>
+            </div>
+
+            <div class="info-item">
+                <div class="icon-wrapper">📊</div>
+                <div class="info-label">Batch Processing</div>
+                <div class="info-value">Process multiple cards simultaneously with configurable concurrency</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="info-item">
+                <div class="info-label">Card Format</div>
+                <div class="info-value" style="font-size: 13px; font-family: monospace; background: #f5f5f5; padding: 8px; border-radius: 4px; margin-top: 6px;">
+                    CARDNUMBER|MM|YYYY
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            <p class="footer-text">&copy; 2024 Foodpanda Payment Processor. All rights reserved.</p>
+            <p class="footer-text" style="font-size: 12px; color: #999;">Secure payment processing powered by Foodpanda API</p>
+            <nav class="footer-links" aria-label="Footer navigation">
+                <a href="#" class="footer-link" aria-label="Privacy Policy">Privacy</a>
+                <a href="#" class="footer-link" aria-label="Terms of Service">Terms</a>
+                <a href="#" class="footer-link" aria-label="Documentation">Docs</a>
+                <a href="#" class="footer-link" aria-label="Support">Support</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script>
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedBearer = localStorage.getItem('fp_bearer_token');
+            const savedPostfields = localStorage.getItem('fp_postfields');
+            
+            if (savedBearer) {
+                document.getElementById('bearer').value = savedBearer;
+            }
+            
+            if (savedPostfields) {
+                try {
+                    const parsed = JSON.parse(savedPostfields);
+                    document.getElementById('postfields').value = JSON.stringify(parsed, null, 2);
+                } catch (e) {
+                    document.getElementById('postfields').value = savedPostfields;
+                }
+            }
+        }
+
+        // Tab functionality with accessibility
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+
+                    // Remove active class and aria-selected from all tabs and contents
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    tabContents.forEach(tc => {
+                        tc.classList.remove('active');
+                        tc.setAttribute('hidden', 'true');
+                    });
+
+                    // Add active class and aria-selected to clicked tab and corresponding content
+                    this.classList.add('active');
+                    this.setAttribute('aria-selected', 'true');
+                    const targetContent = document.getElementById(targetTab + 'Tab');
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        targetContent.removeAttribute('hidden');
+                    }
+                });
+
+                // Keyboard navigation support
+                tab.addEventListener('keydown', function(e) {
+                    let index = Array.from(tabs).indexOf(this);
+                    let target = null;
+
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        if (e.key === 'ArrowRight') {
+                            target = tabs[index + 1] || tabs[0];
+                        } else {
+                            target = tabs[index - 1] || tabs[tabs.length - 1];
+                        }
+                        target.focus();
+                        target.click();
+                    }
+                });
+            });
+
+            // Initialize first tab as active
+            if (tabs.length > 0) {
+                tabs[0].setAttribute('aria-selected', 'true');
+                const firstContent = document.querySelector('.tab-content.active');
+                if (firstContent) {
+                    firstContent.removeAttribute('hidden');
+                }
+            }
+        }
+
+        // Card counter functionality
+        function updateCardCounter() {
+            const batchCardsTextarea = document.getElementById('batchCards');
+            const cardCountText = document.getElementById('cardCountText');
+            const MAX_CARDS = 13;
+            
+            if (!batchCardsTextarea || !cardCountText) return;
+            
+            const cards = batchCardsTextarea.value.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            const cardCount = cards.length;
+            
+            // Update counter text and styling
+            cardCountText.textContent = `${cardCount} / ${MAX_CARDS} cards`;
+            cardCountText.className = 'card-counter-text';
+            
+            if (cardCount === 0) {
+                cardCountText.className = 'card-counter-text';
+            } else if (cardCount > MAX_CARDS) {
+                cardCountText.className = 'card-counter-text error';
+            } else if (cardCount === MAX_CARDS) {
+                cardCountText.className = 'card-counter-text warning';
+            } else if (cardCount >= MAX_CARDS * 0.8) {
+                cardCountText.className = 'card-counter-text warning';
+            } else {
+                cardCountText.className = 'card-counter-text success';
+            }
+        }
+
+        // Initialize everything when DOM is ready
+        function initializeApp() {
+            // Load saved data
+            loadSavedData();
+            
+            // Initialize tabs
+            initTabs();
+
+            // Save bearer token on input change
+            const bearerInputField = document.getElementById('bearer');
+            if (bearerInputField) {
+                bearerInputField.addEventListener('input', function(e) {
+                    const value = e.target.value.trim();
+                    if (value) {
+                        localStorage.setItem('fp_bearer_token', value);
+                    } else {
+                        localStorage.removeItem('fp_bearer_token');
+                    }
+                });
+            }
+
+            // Save postfields on input change (with debounce)
+            let postfieldsTimeout;
+            const postfieldsInput = document.getElementById('postfields');
+            if (postfieldsInput) {
+                postfieldsInput.addEventListener('input', function(e) {
+                    clearTimeout(postfieldsTimeout);
+                    postfieldsTimeout = setTimeout(function() {
+                        const value = e.target.value.trim();
+                        if (value) {
+                            localStorage.setItem('fp_postfields', value);
+                        } else {
+                            localStorage.removeItem('fp_postfields');
+                        }
+                    }, 500); // Debounce for 500ms
+                });
+            }
+
+            // Initialize card counter for batch processing
+            const batchCardsTextarea = document.getElementById('batchCards');
+            if (batchCardsTextarea) {
+                batchCardsTextarea.addEventListener('input', updateCardCounter);
+                updateCardCounter(); // Initialize counter on load
+            }
+
+            // Password toggle functionality
+            const toggleBearer = document.getElementById('toggleBearer');
+            const toggleBearerIcon = document.getElementById('toggleBearerIcon');
+            
+            if (toggleBearer && bearerInputField && toggleBearerIcon) {
+                toggleBearer.addEventListener('click', function() {
+                    if (bearerInputField.type === 'password') {
+                        bearerInputField.type = 'text';
+                        toggleBearerIcon.textContent = '🙈';
+                        toggleBearer.setAttribute('aria-label', 'Hide bearer token');
+                    } else {
+                        bearerInputField.type = 'password';
+                        toggleBearerIcon.textContent = '👁️';
+                        toggleBearer.setAttribute('aria-label', 'Show bearer token');
+                    }
+                });
+            }
+        }
+
+        // Load data when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const logsContainer = document.getElementById('logsContainer');
+            const logsList = document.getElementById('logsList');
+            
+            // Get form values
+            const bearer = document.getElementById('bearer').value.trim();
+            const cardNumber = document.getElementById('cardNumber').value.trim().replace(/\s/g, '');
+            const month = document.getElementById('month').value.trim();
+            const year = document.getElementById('year').value.trim();
+            const postfieldsText = document.getElementById('postfields').value.trim();
+            
+            // Ensure data is saved to localStorage (in case input events didn't fire)
+            if (bearer) {
+                localStorage.setItem('fp_bearer_token', bearer);
+            }
+            if (postfieldsText) {
+                localStorage.setItem('fp_postfields', postfieldsText);
+            }
+            
+            // Validate card format
+            if (cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+                showResult('error', 'Invalid card number. Must be 16 digits.');
+                return;
+            }
+            
+            if (month.length !== 2 || !/^\d+$/.test(month) || parseInt(month) < 1 || parseInt(month) > 12) {
+                showResult('error', 'Invalid month. Must be MM format (01-12).');
+                return;
+            }
+            
+            if (year.length !== 4 || !/^\d+$/.test(year)) {
+                showResult('error', 'Invalid year. Must be YYYY format.');
+                return;
+            }
+            
+            // Parse postfields JSON
+            let postfields;
+            try {
+                postfields = JSON.parse(postfieldsText);
+            } catch (error) {
+                showResult('error', 'Invalid JSON in postfields. Please check your JSON format.');
+                return;
+            }
+            
+            // Format card string
+            const card = `${cardNumber}|${month.padStart(2, '0')}|${year}`;
+            
+            // Show loading
+            submitBtn.disabled = true;
+            loading.classList.add('show');
+            result.classList.remove('show');
+            logsContainer.style.display = 'none';
+            logsList.innerHTML = '';
+            
+            // Prepare data to send
+            const requestData = {
+                bearer: bearer,
+                card: card,
+                postfields: postfields
+            };
+            
+            try {
+                // Send to backend endpoint
+                const response = await fetch('/api/process-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                // Display logs
+                if (data.logs && data.logs.length > 0) {
+                    displayLogs(data.logs);
+                    logsContainer.style.display = 'block';
+                }
+                
+                if (response.ok) {
+                    showResult('success', data.message || 'Payment processed successfully!', data);
+                } else {
+                    showResult('error', data.error || 'Payment processing failed', data);
+                }
+            } catch (error) {
+                showResult('error', 'Network error: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+        
+        function displayLogs(logs) {
+            const logsList = document.getElementById('logsList');
+            logsList.innerHTML = '';
+            
+            logs.forEach(log => {
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${log.type || 'info'}`;
+                
+                const timestamp = document.createElement('span');
+                timestamp.className = 'log-timestamp';
+                timestamp.textContent = log.timestamp || '';
+                
+                const message = document.createElement('span');
+                message.className = 'log-message';
+                message.textContent = log.message || '';
+                
+                logEntry.appendChild(timestamp);
+                logEntry.appendChild(message);
+                logsList.appendChild(logEntry);
+            });
+            
+            // Scroll to bottom
+            const logsContainer = document.getElementById('logsContainer');
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+        
+        function showResult(type, message, data = null) {
+            const result = document.getElementById('result');
+            result.className = 'result show ' + type;
+            
+            let resultHTML = `<strong>${message}</strong>`;
+            
+            if (data && data.requires3DS && data.merchantUrl) {
+                resultHTML += `<div style="margin-top: 12px;"><strong>3DS Authentication Required:</strong><br><a href="${data.merchantUrl}" target="_blank" style="color: #D70F64; word-break: break-all;">${data.merchantUrl}</a></div>`;
+            }
+            
+            if (data && data.error) {
+                resultHTML += `<div style="margin-top: 8px; font-size: 13px; color: inherit; opacity: 0.9;">${data.error}</div>`;
+            }
+            
+            result.innerHTML = resultHTML;
+        }
+        
+        // Auto-format card number input
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+        
+        // Auto-format month input
+        document.getElementById('month').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+            if (e.target.value.length === 2 && parseInt(e.target.value) > 12) {
+                e.target.value = '12';
+            }
+        });
+        
+        // Auto-format year input
+        document.getElementById('year').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Batch Processing Form
+        document.getElementById('batchForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const batchSubmitBtn = document.getElementById('batchSubmitBtn');
+            const batchLoading = document.getElementById('batchLoading');
+            const batchResult = document.getElementById('batchResult');
+            const batchResults = document.getElementById('batchResults');
+            const batchResultsList = document.getElementById('batchResultsList');
+            
+            // Get form values
+            const bearer = document.getElementById('bearer').value.trim();
+            const postfieldsText = document.getElementById('postfields').value.trim();
+            const cardsText = document.getElementById('batchCards').value.trim();
+            const concurrency = parseInt(document.getElementById('concurrency').value) || 14;
+            
+            if (!bearer || !postfieldsText) {
+                showResult('error', 'Please fill in Bearer Token and Postfields first');
+                return;
+            }
+            
+            if (!cardsText) {
+                showResult('error', 'Please enter at least one card');
+                return;
+            }
+            
+            // Parse postfields JSON
+            let postfields;
+            try {
+                postfields = JSON.parse(postfieldsText);
+            } catch (error) {
+                showResult('error', 'Invalid JSON in postfields. Please check your JSON format.');
+                return;
+            }
+            
+            // Parse cards (one per line)
+            const cards = cardsText.split('\n')
+                .map(line => line.trim())
+                .filter(line => line.length > 0);
+            
+            if (cards.length === 0) {
+                showResult('error', 'No valid cards found. Please enter at least one card.');
+                return;
+            }
+            
+            // Validate maximum card limit
+            if (cards.length > 13) {
+                batchResult.className = 'result show error';
+                batchResult.style.display = 'block';
+                batchResult.innerHTML = `<strong>Maximum card limit exceeded</strong><br>You can only input a maximum of 13 cards. You entered ${cards.length} cards.`;
+                return;
+            }
+            
+            // Show loading
+            batchSubmitBtn.disabled = true;
+            batchLoading.style.display = 'block';
+            batchResult.style.display = 'none';
+            batchResults.style.display = 'none';
+            batchResultsList.innerHTML = '';
+            
+            try {
+                // Send to backend endpoint
+                const response = await fetch('/api/process-batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bearer: bearer,
+                        cards: cards,
+                        postfields: postfields,
+                        concurrency: concurrency
+                    })
+                });
+                
+                // Check if response is ok and get content type
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    throw new Error(`Server returned non-JSON response. Status: ${response.status}. Response: ${text.substring(0, 200)}`);
+                }
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Display summary
+                    displayBatchSummary(data);
+                    
+                    // Display individual results
+                    displayBatchResults(data.results);
+                    
+                    batchResults.style.display = 'block';
+                    
+                    // Show result message
+                    batchResult.className = 'result show success';
+                    batchResult.style.display = 'block';
+                    batchResult.innerHTML = `<strong>Batch processing completed!</strong><br>Success: ${data.successCount} | Failed: ${data.failureCount} | Total: ${data.total}`;
+                } else {
+                    batchResult.className = 'result show error';
+                    batchResult.style.display = 'block';
+                    batchResult.innerHTML = `<strong>Batch processing failed</strong><br>${data.error || data.message || 'Unknown error'}`;
+                }
+            } catch (error) {
+                batchResult.className = 'result show error';
+                batchResult.style.display = 'block';
+                let errorMessage = error.message;
+                
+                // Try to parse if it's a JSON parse error
+                if (errorMessage.includes('JSON')) {
+                    errorMessage = `Failed to parse server response. The server might have returned an error page. Error: ${error.message}`;
+                }
+                
+                batchResult.innerHTML = `<strong>Error:</strong> ${errorMessage}<br><small>Make sure the server is running on port 3000 and the /api/process-batch endpoint exists.</small>`;
+                console.error('Batch processing error:', error);
+            } finally {
+                batchSubmitBtn.disabled = false;
+                batchLoading.style.display = 'none';
+            }
+        });
+
+        function displayBatchSummary(data) {
+            const summaryHTML = `
+                <div class="batch-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Total Cards</div>
+                        <div class="summary-value">${data.total}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Success</div>
+                        <div class="summary-value success">${data.successCount}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Failed</div>
+                        <div class="summary-value error">${data.failureCount}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Completed</div>
+                        <div class="summary-value">${data.completed}</div>
+                    </div>
+                </div>
+            `;
+            
+            const batchResults = document.getElementById('batchResults');
+            if (!batchResults.querySelector('.batch-summary')) {
+                batchResults.insertAdjacentHTML('afterbegin', summaryHTML);
+            } else {
+                batchResults.querySelector('.batch-summary').outerHTML = summaryHTML;
+            }
+        }
+
+        function displayBatchResults(results) {
+            const batchResultsList = document.getElementById('batchResultsList');
+            batchResultsList.innerHTML = '';
+            
+            results.forEach((result, index) => {
+                const statusClass = result.success ? 'success' : (result.requires3DS ? 'warning' : 'error');
+                const statusText = result.success ? 'SUCCESS' : (result.requires3DS ? '3DS REQUIRED' : 'FAILED');
+                
+                const resultHTML = `
+                    <div class="card-result-item ${statusClass}">
+                        <div class="card-result-header">
+                            <div class="card-result-title">Card ${index + 1}: ${result.card}</div>
+                            <div class="card-result-status ${statusClass}">${statusText}</div>
+                        </div>
+                        <div class="card-result-message">
+                            ${result.message || result.error || 'Processing completed'}
+                            ${result.merchantUrl ? `<br><a href="${result.merchantUrl}" target="_blank" style="color: #D70F64; word-break: break-all;">${result.merchantUrl}</a>` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                batchResultsList.insertAdjacentHTML('beforeend', resultHTML);
+            });
+        }
+    </script>
+</body>
+</html>
