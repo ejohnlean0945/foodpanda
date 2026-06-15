@@ -121,7 +121,6 @@ async function processCardPayment(bearer, postfields, card) {
 
     log(`Creating payment intent with amount: ${intentPostfields.subtotal} ${intentPostfields.currency}`, 'info');
     let purchaseIntent;
-    async function yourFunctionName() {
     try {
         const purchaseIntentResponse = await axios.post(
             'https://ph.fd-api.com/api/v5/purchase/intent?include=cashback&locale=en_PH&fast-top-up=false',
@@ -138,7 +137,6 @@ async function processCardPayment(bearer, postfields, card) {
         log(error.response ? JSON.stringify(error.response.data) : error.message, 'error');
         return { success: false, logs, error: msg };
     }
-}
 
 
     log('Getting Context KEYID...', 'info');
