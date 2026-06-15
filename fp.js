@@ -101,7 +101,6 @@ async function processCardPayment(bearer, postfields, card) {
         return { success: false, logs, error: msg };
     }
 }
-    }
     let { email, first_name, last_name } = customerData.data;
     let fullName = first_name + " " + last_name;
     log(`Customer Name: ${fullName}, Email: ${email}`, 'success');
