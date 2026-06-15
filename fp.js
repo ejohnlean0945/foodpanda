@@ -91,15 +91,16 @@ async function processCardPayment(bearer, postfields, card) {
         );
         customerData = customerDataResponse.data;
     } catch (error) {
-        if (error.response && error.response.data && error.response.data.message === 'Unauthorized') {
-            const msg = 'Error: Bearer token is expired or invalid.';
-            log(msg, 'error');
-            return { success: false, logs, error: msg };
-        } else {
-            const msg = 'Error in getting customer data!';
-            log(msg, 'error');
-            return { success: false, logs, error: msg };
-        }
+    if (error.response && error.response.data && error.response.data.message === 'Unauthorized') {
+        const msg = 'Error: Bearer token is expired or invalid.';
+        log(msg, 'error');
+        return { success: false, logs, error: msg };
+    } else {
+        const msg = 'Error in getting customer data: ' + (error.response ? JSON.stringify(error.response.data) : error.message);
+        log(msg, 'error');
+        return { success: false, logs, error: msg };
+    }
+}
     }
     let { email, first_name, last_name } = customerData.data;
     let fullName = first_name + " " + last_name;
